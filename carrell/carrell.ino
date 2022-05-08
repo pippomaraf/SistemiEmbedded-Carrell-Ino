@@ -19,10 +19,10 @@ HX711 loadcell;
 // KY-033 line detecting sensor
 // note: due to digital pin shortage, analog pins are used
 // to perform digitalReads;
-#define LINE_FOLLOWER_DXDX_SIGNAL A5
-#define LINE_FOLLOWER_DX_SIGNAL A4
-#define LINE_FOLLOWER_SX_SIGNAL A3
-#define LINE_FOLLOWER_SXSX_SIGNAL A2
+#define LINE_FOLLOWER_RR_SIGNAL A5
+#define LINE_FOLLOWER_R_SIGNAL A4
+#define LINE_FOLLOWER_L_SIGNAL A3
+#define LINE_FOLLOWER_LL_SIGNAL A2
 
 // L298N DC motor driver
 // note: PWM capable pin needed
@@ -55,9 +55,9 @@ HX711 loadcell;
 #define LOADCELL_DIVIDER 497.5
 
 // found by trial and error
-#define MINIMUM_SPEED_EMPTY 120 // PWM value, out of 255
+#define MINIMUM_SPEED 120 // PWM value, out of 255
 #define NORMAL_SPEED 130
-#define TUNRING_SPEED 0
+#define TUNRING_SPEED 20
 
 // note: measure errors are present. Consider the minimum weight
 // to be 10g above this treshold
@@ -189,6 +189,78 @@ void calibrateScale()
   Serial.println("Calibration ended");
 }
 
+
+
+/** LINE FOLLOWER
+ * @brief moves forward at the given speed. Carrell.ino will try it's best to
+ * follow a dark line on a light surface, using its infrared sensors. To 
+ * function properly this function should be cycled for the time that you 
+ * intend the carrell.ino to follow the line. Keep in mind that the infrared 
+ * sensor are checked in order every cycle, the busyer the cycle you put this
+ * function in the slower the carrell.ino will respond!
+ */
+void followLine(int speed)
+{
+  // when R sensor is on the line, for the time that it reads the line
+  // gently steer right
+  if (digitalRead(LINE_FOLLOWER_R_SIGNAL))
+  {
+    while (digitalRead(LINE_FOLLOWER_R_SIGNAL))
+    {
+      steer(speed, TUNRING_SPEED);
+      // if it gets stuck, break out of the cycle
+      if (digitalRead(LINE_FOLLOWER_L_SIGNAL))
+        break;
+      // if it's very off, steer hard until the left sensor is on the line
+      if (digitalRead(LINE_FOLLOWER_RR_SIGNAL))
+      {
+        while (!digitalRead(LINE_FOLLOWER_L_SIGNAL))
+        {
+          steer(MINIMUM_SPEED, 0);
+        }
+      }
+    }
+  }
+  // when L sensor is on the line, for the time that it reads the line
+  // gently steer left
+  else if (digitalRead(LINE_FOLLOWER_L_SIGNAL))
+  {
+    while (digitalRead(LINE_FOLLOWER_L_SIGNAL))
+    {
+      steer(TUNRING_SPEED, speed);
+      // if it gets stuck, break out of the cycle
+      if (digitalRead(LINE_FOLLOWER_R_SIGNAL))
+        break;
+      // if it's very off, steer hard until the right sensor is on the line
+      if (digitalRead(LINE_FOLLOWER_LL_SIGNAL))
+      {
+        while (!digitalRead(LINE_FOLLOWER_R_SIGNAL))
+        {
+          steer(0, MINIMUM_SPEED);
+        }
+      }
+    }
+  }
+  // if it's very off, steer hard until it's straight again
+  else if (digitalRead(LINE_FOLLOWER_RR_SIGNAL))
+  {
+    while (!digitalRead(LINE_FOLLOWER_L_SIGNAL))
+    {
+      steer(MINIMUM_SPEED, 0);
+    }
+  }
+  else if (digitalRead(LINE_FOLLOWER_LL_SIGNAL))
+  {
+    while (!digitalRead(LINE_FOLLOWER_R_SIGNAL))
+    {
+      steer(0, MINIMUM_SPEED);
+    }
+  }
+  // otherwise, go straight
+  else if (!digitalRead(LINE_FOLLOWER_R_SIGNAL) && !digitalRead(LINE_FOLLOWER_L_SIGNAL))
+    moveForward(speed);
+}
+
 //-----------------------------
 //      STATES
 //-----------------------------
@@ -231,56 +303,10 @@ void wayThereState()
   Serial.println("moving");
   while (true)
   {
-    // steer if off the line
-    if (digitalRead(LINE_FOLLOWER_DX_SIGNAL)) // dx sensor on line
-    {
-      while (digitalRead(LINE_FOLLOWER_DX_SIGNAL))
-      {
-        steer(NORMAL_SPEED, TUNRING_SPEED);
-        if (digitalRead(LINE_FOLLOWER_DXDX_SIGNAL))
-        {
-          while (digitalRead(LINE_FOLLOWER_DXDX_SIGNAL))
-          {
-            steer(MINIMUM_SPEED_EMPTY, 0);
-          }
-        }
-      }
-    }
-    else if (digitalRead(LINE_FOLLOWER_SX_SIGNAL)) // sx is over the line
-    {
-      while (digitalRead(LINE_FOLLOWER_SX_SIGNAL))
-      {
-        steer(TUNRING_SPEED, NORMAL_SPEED);
-        if (digitalRead(LINE_FOLLOWER_SXSX_SIGNAL))
-        {
-          while (digitalRead(LINE_FOLLOWER_SXSX_SIGNAL))
-          {
-            steer(0, MINIMUM_SPEED_EMPTY);
-          }
-        }
-      }
-    }
-    // if it's very off, it will rotate on himself
-    else if (digitalRead(LINE_FOLLOWER_DXDX_SIGNAL))
-    { // if dxdx is over the line
-      while (!digitalRead(LINE_FOLLOWER_SX_SIGNAL))
-      {
-        steer(MINIMUM_SPEED_EMPTY, 0);
-      }
-    }
-    else if (digitalRead(LINE_FOLLOWER_SXSX_SIGNAL))
-    { // sese is over the line
-      while (!digitalRead(LINE_FOLLOWER_DX_SIGNAL))
-      {
-        steer(0, MINIMUM_SPEED_EMPTY);
-      }
-    }
-    // otherwise, go straight
-    else if (!digitalRead(LINE_FOLLOWER_DX_SIGNAL) && !digitalRead(LINE_FOLLOWER_SX_SIGNAL))
-      moveForward(NORMAL_SPEED);
+    followLine(NORMAL_SPEED);
+    // check for the end wall, if near stop
   }
 
-  // check for the end wall, if near stop
 }
 
 void unloadingState() {}
@@ -298,10 +324,10 @@ void setup()
   // pin modes
   pinMode(ULTRASONIC_TRIG, OUTPUT);
   pinMode(ULTRASONIC_ECHO, INPUT);
-  pinMode(LINE_FOLLOWER_DXDX_SIGNAL, INPUT);
-  pinMode(LINE_FOLLOWER_DX_SIGNAL, INPUT);
-  pinMode(LINE_FOLLOWER_SX_SIGNAL, INPUT);
-  pinMode(LINE_FOLLOWER_SXSX_SIGNAL, INPUT);
+  pinMode(LINE_FOLLOWER_RR_SIGNAL, INPUT);
+  pinMode(LINE_FOLLOWER_R_SIGNAL, INPUT);
+  pinMode(LINE_FOLLOWER_L_SIGNAL, INPUT);
+  pinMode(LINE_FOLLOWER_LL_SIGNAL, INPUT);
   pinMode(MOTOR_DRIVER_ENA, OUTPUT);
   pinMode(MOTOR_DRIVER_ENB, OUTPUT);
   loadcell.begin(LOAD_CELL_DATA, LOAD_CELL_CK);
