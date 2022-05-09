@@ -53,11 +53,13 @@ HX711 loadcell;
 
 // load cell calibration, calculated with the calibrateScale() function
 #define LOADCELL_DIVIDER 497.5
+#define LOADCELL_READ_TIMES 10
 
 // found by trial and error
 #define MINIMUM_SPEED 120 // PWM value, out of 255
 #define NORMAL_SPEED 130
 #define TUNRING_SPEED 20
+#define BRAKE_DELAY 3 // milliseconds
 
 // note: measure errors are present. Consider the minimum weight
 // to be 10g above this treshold
@@ -72,6 +74,18 @@ HX711 loadcell;
 
 // for stability
 #define STABILITY_DELAY 50
+
+// for ultrasonic sensor
+#define CLEAR_TIME 2 // microseconds
+#define TRIGGER_TIME 10 // microseconds
+
+// number of centimeters travelled by sound in a microsecond
+#define CM_MULTIPLIER 0.034326 
+// 2, to take in consideration the fact that sound has to travel doble the 
+// distance to go and come back
+#define RTT_MULTIPLIER 2
+#define STOPPING_DISTANCE 25L // centimeters
+#define ERROR_DISTANCE 2L // centimeters
 
 //-----------------------------
 //      FUNCTIONS
@@ -95,35 +109,43 @@ void steer(int speedLeft, int speedRight)
   analogWrite(MOTOR_DRIVER_ENB, speedRight);
 }
 
+// gently slow down
 void stop()
 {
-  moveForward(0);
+  for(int i = NORMAL_SPEED; i>=0; i--) {
+    moveForward(i);
+    delay(BRAKE_DELAY);
+  }
 }
 
 /* Tunes
+ * the function tone() is used. If you are interested to better understand the
+ * tunes, tone(PIN, FREQUENCY, DURATION) plays a tone at FREQUENCY Hz for
+ * DURATION ms -> es:   tone(BUZZER_PIN, 494, 700); plays a tune at 494Hz
+ * for 700ms
  */
 void arrivalTune()
 {
   digitalWrite(LED_PIN, HIGH);
   delay(50);
   digitalWrite(LED_PIN, LOW);
-  tone(BUZZER_PIN, 494, 700);
+  tone(BUZZER_PIN, 494, 700); // B4
   delay(80);
 
   digitalWrite(LED_PIN, HIGH);
   delay(50);
   digitalWrite(LED_PIN, LOW);
-  tone(BUZZER_PIN, 659, 600);
+  tone(BUZZER_PIN, 659, 600); // E5
   delay(80);
 
   digitalWrite(LED_PIN, HIGH);
   delay(50);
   digitalWrite(LED_PIN, LOW);
-  tone(BUZZER_PIN, 740, 600);
+  tone(BUZZER_PIN, 740, 600); //  F#5
   delay(80);
 
   digitalWrite(LED_PIN, HIGH);
-  tone(BUZZER_PIN, 988, 850);
+  tone(BUZZER_PIN, 988, 850); // B5
   delay(850);
   digitalWrite(LED_PIN, LOW);
 }
@@ -133,14 +155,14 @@ void startTune()
   for (int i = 0; i <= 3; i++)
   {
     digitalWrite(LED_PIN, HIGH);
-    tone(BUZZER_PIN, 1319, 200);
+    tone(BUZZER_PIN, 1319, 200); // E6
     delay(200);
-    tone(BUZZER_PIN, 1397, 200);
+    tone(BUZZER_PIN, 1397, 200); // F6
     delay(200);
     digitalWrite(LED_PIN, LOW);
-    tone(BUZZER_PIN, 2637, 200);
+    tone(BUZZER_PIN, 2637, 200); // E7
     delay(200);
-    tone(BUZZER_PIN, 2794, 200);
+    tone(BUZZER_PIN, 2794, 200); // F7
     delay(200);
   }
 }
@@ -184,7 +206,7 @@ void calibrateScale()
     }
   }
   Serial.print("Weight: ");
-  Serial.println(loadcell.get_units(10), 2);
+  Serial.println(loadcell.get_units(LOADCELL_READ_TIMES), 2); // limit to two numbers afer comma
   Serial.println("Divide this for the known weight and set LOADCELL_DIVIDER accordingly");
   Serial.println("Calibration ended");
 }
@@ -261,6 +283,34 @@ void followLine(int speed)
     moveForward(speed);
 }
 
+/** ULtrasoun sensor
+ * @brief check if a wall is near in front of the carrell.ino
+ * Stop if needed 
+ */
+void stopIfNearWall() {
+  // start in a safe state
+  digitalWrite(ULTRASONIC_TRIG, LOW);
+  delayMicroseconds(CLEAR_TIME);
+  
+  // send ultrasonic signal
+  digitalWrite(ULTRASONIC_TRIG, HIGH);
+  delayMicroseconds(TRIGGER_TIME);
+  digitalWrite(ULTRASONIC_TRIG, LOW);
+
+  // read echo value, in microseconds
+  long duration = pulseIn(ULTRASONIC_ECHO, HIGH, 2000);
+
+  // Calculating the distance in cm
+  long distance = duration * CM_MULTIPLIER / RTT_MULTIPLIER;
+
+  // if there are less than the desired distance, stop and go to unloading state
+  if( distance > ERROR_DISTANCE && distance < STOPPING_DISTANCE) {
+    stop();
+    unloadingState();
+  }
+
+}
+
 //-----------------------------
 //      STATES
 //-----------------------------
@@ -299,17 +349,29 @@ void loadingState()
 void wayThereState()
 {
   // start moving forward
-  // moveForward(NORMAL_SPEED);
-  Serial.println("moving");
   while (true)
   {
     followLine(NORMAL_SPEED);
-    // check for the end wall, if near stop
+    stopIfNearWall();
   }
 
 }
 
-void unloadingState() {}
+/**
+ * @brief the carrell.ino has stopped. First, you'll need to turn it around
+ * (due to the limited number of GPIO the carrell.ino does not have a symmetric
+ * structure), then you'll need to press the button near the ultrasonic sensor.
+ * The carrell.ino will wait to be unloaded, then it will go back to where it
+ * started it's run.
+ */
+void unloadingState() {
+  // wait until the reset button is pressed
+  while(true) {
+    if(digitalRead(BUTTON_PIN)) break;
+    delay(STABILITY_DELAY);
+  }
+  arrivalTune();
+}
 
 void wayBackState() {}
 
