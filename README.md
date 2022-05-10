@@ -16,7 +16,23 @@ Raggiunta la sua destinazione, il carrell-ino si fermerà, in attesa di essere s
 
 Una volta che il suo cassone sarà libero, il carrell-ino tornerà al punto di partenza, pronto per essere caricato nuovamente.
 
-##### Hardware utilizzato (provvisorio)
+##### Istruzioni di utizzo
+
+1. Tracciare un percorso delineato da una linea scura su una superficie chiara (per esempio, utilizzare del nastro isolante nero su un pavimento di legno). Alle estremità del percoso posizionare delle sagome verticali (per esempio, delle scatole di cartone).
+
+2. Posizionare il carrell-ino a cavallo della linea che delimita il percorso e accenderlo.
+
+3. Posizionare un peso di almeno 50g sulla bilancia del carrell-ino e attendere. Dopo pochi istanti, il carrello emetterà un segnale acustico e luminoso e inizierà a muoversi.
+
+4. Il carrell-ino si muoverà seguendo il percorso prefissato e si fermerà automaticamente una volta raggiunta la sua destinazione. Una luce rossa si accenderà per richiedere l'intervento dell'utente.
+
+5. Girare il carrello, in modo che punti verso la partenza del percorso, e premere il pulsante posizionato vicino al sensore a ultrasuoni.
+
+6. Il carrell-ino resterà quindi in attesa di essere scaricato; quando non rileverà più il peso sulla bilancia, ripartirà, in modo analogo a come fatto nella fase 3, verso il punto di partenza, dove si fermerà.
+
+7. Premendo il pulsante il carrello tornerà al suo stato iniziale, e sarà possibile ripartire dal punto 2 per effettuare ulteriori viaggi.
+
+##### Hardware utilizzato
 
 - Board: Arduino Uno
 
@@ -43,3 +59,23 @@ Una volta che il suo cassone sarà libero, il carrell-ino tornerà al punto di p
 ##### Librerie utilizzate
 
 - [GitHub - bogde/HX711: An Arduino library to interface the Avia Semiconductor HX711 24-Bit Analog-to-Digital Converter (ADC) for Weight Scales.](https://github.com/bogde/HX711)
+
+---
+
+### Progettazione
+
+
+
+![Macchina a stati.png](C:\Users\filip\Desktop\SistemiEmbedded-Carrell-Ino\images\Macchina%20a%20stati.png)
+
+_Schema della macchina a stati finiti utilizzata per gestire le varie fasi di esecuzione._
+
+
+
+
+
+
+
+![Schema_bb.png](C:\Users\filip\Desktop\SistemiEmbedded-Carrell-Ino\images\Schema_bb.png)
+
+_Schema circuitale. Immagine creata con [Fritzing](https://fritzing.org/)_

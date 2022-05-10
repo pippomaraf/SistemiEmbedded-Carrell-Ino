@@ -368,7 +368,7 @@ void wayThereState()
  * (due to the limited number of GPIO the carrell.ino does not have a symmetric
  * structure), then you'll need to press the button near the ultrasonic sensor.
  * The carrell.ino will wait to be unloaded, then it will go back to where it
- * started it's run.
+ * started its run.
  */
 void unloadingState()
 {
@@ -382,7 +382,6 @@ void unloadingState()
     digitalWrite(LED_PIN, HIGH);
     delay(STABILITY_DELAY);
   }
-  // --- ToDo unloading
   digitalWrite(LED_PIN, LOW);
 
   long weight = 0L;
