@@ -2,7 +2,7 @@
  * @file carrell.ino
  * @author Filippo Maraffio
  * @brief Automatic, line-following electric cart
- * @version 0.1
+ * @version 1.0
  */
 
 #include "HX711.h"
