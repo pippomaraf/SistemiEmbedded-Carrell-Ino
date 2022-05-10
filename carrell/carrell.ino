@@ -70,22 +70,26 @@ HX711 loadcell;
 
 // number of loadcell reds under the treshold before
 // the carrell.ino will start moving
-#define CHECKS_BEFORE_START 5
+#define CHECKS_BEFORE_START 3
 
 // for stability
 #define STABILITY_DELAY 50
 
 // for ultrasonic sensor
-#define CLEAR_TIME 2 // microseconds
+#define CLEAR_TIME 2    // microseconds
 #define TRIGGER_TIME 10 // microseconds
 
 // number of centimeters travelled by sound in a microsecond
-#define CM_MULTIPLIER 0.034326 
-// 2, to take in consideration the fact that sound has to travel doble the 
+#define CM_MULTIPLIER 0.034326
+// 2, to take in consideration the fact that sound has to travel doble the
 // distance to go and come back
 #define RTT_MULTIPLIER 2
 #define STOPPING_DISTANCE 25L // centimeters
-#define ERROR_DISTANCE 2L // centimeters
+#define ERROR_DISTANCE 2L     // centimeters
+
+// return value
+#define SUCCESS 1
+#define FAILURE -1
 
 //-----------------------------
 //      FUNCTIONS
@@ -112,7 +116,8 @@ void steer(int speedLeft, int speedRight)
 // gently slow down
 void stop()
 {
-  for(int i = NORMAL_SPEED; i>=0; i--) {
+  for (int i = NORMAL_SPEED; i >= 0; i--)
+  {
     moveForward(i);
     delay(BRAKE_DELAY);
   }
@@ -211,13 +216,11 @@ void calibrateScale()
   Serial.println("Calibration ended");
 }
 
-
-
 /** LINE FOLLOWER
  * @brief moves forward at the given speed. Carrell.ino will try it's best to
- * follow a dark line on a light surface, using its infrared sensors. To 
- * function properly this function should be cycled for the time that you 
- * intend the carrell.ino to follow the line. Keep in mind that the infrared 
+ * follow a dark line on a light surface, using its infrared sensors. To
+ * function properly this function should be cycled for the time that you
+ * intend the carrell.ino to follow the line. Keep in mind that the infrared
  * sensor are checked in order every cycle, the busyer the cycle you put this
  * function in the slower the carrell.ino will respond!
  */
@@ -285,13 +288,14 @@ void followLine(int speed)
 
 /** ULtrasoun sensor
  * @brief check if a wall is near in front of the carrell.ino
- * Stop if needed 
+ * Stop if needed
  */
-void stopIfNearWall() {
+int stopIfNearWall()
+{
   // start in a safe state
   digitalWrite(ULTRASONIC_TRIG, LOW);
   delayMicroseconds(CLEAR_TIME);
-  
+
   // send ultrasonic signal
   digitalWrite(ULTRASONIC_TRIG, HIGH);
   delayMicroseconds(TRIGGER_TIME);
@@ -304,11 +308,12 @@ void stopIfNearWall() {
   long distance = duration * CM_MULTIPLIER / RTT_MULTIPLIER;
 
   // if there are less than the desired distance, stop and go to unloading state
-  if( distance > ERROR_DISTANCE && distance < STOPPING_DISTANCE) {
+  if (distance > ERROR_DISTANCE && distance < STOPPING_DISTANCE)
+  {
     stop();
-    unloadingState();
+    return SUCCESS;
   }
-
+  return FAILURE;
 }
 
 //-----------------------------
@@ -352,9 +357,10 @@ void wayThereState()
   while (true)
   {
     followLine(NORMAL_SPEED);
-    stopIfNearWall();
+    int returnValue = stopIfNearWall();
+    if (returnValue == SUCCESS)
+      break;
   }
-
 }
 
 /**
@@ -364,18 +370,60 @@ void wayThereState()
  * The carrell.ino will wait to be unloaded, then it will go back to where it
  * started it's run.
  */
-void unloadingState() {
+void unloadingState()
+{
   // wait until the reset button is pressed
-  while(true) {
-    if(digitalRead(BUTTON_PIN)) break;
+  while (true)
+  {
+    if (!digitalRead(BUTTON_PIN))
+    {
+      break;
+    };
+    digitalWrite(LED_PIN, HIGH);
     delay(STABILITY_DELAY);
   }
-  arrivalTune();
+  // --- ToDo unloading
+  digitalWrite(LED_PIN, LOW);
+
+  long weight = 0L;
+  int times = CHECKS_BEFORE_START;
+
+  while (times >= 0)
+  {
+    weight = loadcell.get_units(LOADCELL_READS);
+    if (weight <= MINIMUM_WEIGHT_TRESHOLD)
+    {
+      times--;
+    }
+    else
+    {
+      times = CHECKS_BEFORE_START;
+    }
+  }
+  startTune();
 }
 
-void wayBackState() {}
+void wayBackState()
+{
+  while (true)
+  {
+    followLine(NORMAL_SPEED);
+    int returnValue = stopIfNearWall();
+    if (returnValue == SUCCESS)
+      break;
+  }
+}
 
-void finishState() {}
+void finishState()
+{
+  arrivalTune();
+  while (true)
+  {
+    if (!digitalRead(BUTTON_PIN))
+      break;
+    delay(STABILITY_DELAY);
+  }
+}
 
 //-----------------------------
 //      LOOP AND SETUP
@@ -410,7 +458,7 @@ void setup()
 
 void loop()
 {
-  // LoadingState(); // --- uncomment
+  loadingState();
   wayThereState();
   unloadingState();
   wayBackState();
