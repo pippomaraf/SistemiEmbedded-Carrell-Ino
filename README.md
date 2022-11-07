@@ -10,7 +10,7 @@ Filippo Maraffio
 
 Il progetto prevede la realizzazione di un carrello elettrico automatico, in grado di spostare piccoli oggetti lungo un percorso prefissato.
 
-Il carrell-ino partirà automaticamente quando rileverà la presenza di un oggetto nel suo cassone, e si muoverà seguendo una linea marcata precedentemente sul pavimento con del nastro isolante scuro.
+Il carrell-ino partirà automaticamente quando rileverà la presenza di un oggetto nel suo "cassone", e si muoverà seguendo una linea marcata precedentemente sul pavimento con del nastro isolante scuro.
 
 Raggiunta la sua destinazione, il carrell-ino si fermerà, in attesa di essere scaricato.
 
@@ -26,11 +26,11 @@ Una volta che il suo cassone sarà libero, il carrell-ino tornerà al punto di p
 
 4. Il carrell-ino si muoverà seguendo il percorso prefissato e si fermerà automaticamente una volta raggiunta la sua destinazione. Una luce rossa si accenderà per richiedere l'intervento dell'utente.
 
-5. Girare il carrello, in modo che punti verso la partenza del percorso, e premere il pulsante posizionato vicino al sensore a ultrasuoni.
+5. Girare il carrell-ino, in modo che punti verso la partenza del percorso, e premere il pulsante posizionato vicino al sensore a ultrasuoni.
 
 6. Il carrell-ino resterà quindi in attesa di essere scaricato; quando non rileverà più il peso sulla bilancia, ripartirà, in modo analogo a come fatto nella fase 3, verso il punto di partenza, dove si fermerà.
 
-7. Premendo il pulsante il carrello tornerà al suo stato iniziale, e sarà possibile ripartire dal punto 2 per effettuare ulteriori viaggi.
+7. Premendo il pulsante il carrell-ino tornerà al suo stato iniziale, e sarà possibile ripartire dal punto 2 per effettuare ulteriori viaggi.
 
 ##### Hardware utilizzato
 
@@ -64,18 +64,10 @@ Una volta che il suo cassone sarà libero, il carrell-ino tornerà al punto di p
 
 ### Progettazione
 
-
-
-![Macchina a stati.png](C:\Users\filip\Desktop\SistemiEmbedded-Carrell-Ino\images\Macchina%20a%20stati.png)
+![Macchina a stati.png](./images/Macchina%20a%20stati.png)
 
 _Schema della macchina a stati finiti utilizzata per gestire le varie fasi di esecuzione._
 
-
-
-
-
-
-
-![Schema_bb.png](C:\Users\filip\Desktop\SistemiEmbedded-Carrell-Ino\images\Schema_bb.png)
+![Schema_bb.png](./images/Schema_bb.png)
 
 _Schema circuitale. Immagine creata con [Fritzing](https://fritzing.org/)_
