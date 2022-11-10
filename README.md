@@ -32,6 +32,14 @@ Una volta che il suo cassone sarà libero, il carrell-ino tornerà al punto di p
 
 7. Premendo il pulsante il carrell-ino tornerà al suo stato iniziale, e sarà possibile ripartire dal punto 2 per effettuare ulteriori viaggi.
 
+##### Calibrazione bilancia
+
+Quando si installa una nuova cella di carico sul Carrell-ino, sarebbe opportuno effettuare una calibrazione della bilancia, così da evitare comportamenti indesiderati.
+
+Per farla, procurarsi un oggetto dal peso noto, collegare il Carrell-ino a un PC dove è installato Arduino IDE, scommentare la costante `SCALE_CALIBRATION` e impostare `LOADCELL_DIVIDER` a `1`. Caricare quindi lo sketch modificato sulla board, aprire il serial monitor e seguire le istruzioni che compariranno a schermo.
+
+Dopo aver effettuato tutti i passaggi, dividere il numero ottenuto per il peso dell'oggetto usato per la calibrazione e usarlo per impostare `LOADCELL_DIVIDER`. Ricommentare `SCALE_CALIBRATION`, e caricare nuovamente lo sketch sulla board. Il Carrell-ino è pronto a partire!
+
 ##### Hardware utilizzato
 
 - Board: Arduino Uno
