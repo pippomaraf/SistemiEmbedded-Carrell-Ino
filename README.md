@@ -48,7 +48,7 @@ Una volta che il suo cassone sarà libero, il carrell-ino tornerà al punto di p
 
 - 2x motori CC da 6V
 
-- 5x batterie AA da 7.5V
+- 5x batterie AA da 1.5V  (7.5V totali)
 
 - 1x pulsante
 
