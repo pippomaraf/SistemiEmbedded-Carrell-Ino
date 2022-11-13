@@ -64,6 +64,10 @@ Dopo aver effettuato tutti i passaggi, dividere il numero ottenuto per il peso d
 
 - 1x resistore da 1000 Ohm
 
+- 1x  buzzer passivo
+
+Per la la realizzazione del telaio e del ruotino di coda sono state utilizzate una  scatola di derivazione elettrica da incasso e una rotella girevole per mobili.
+
 ##### Librerie utilizzate
 
 - [GitHub - bogde/HX711: An Arduino library to interface the Avia Semiconductor HX711 24-Bit Analog-to-Digital Converter (ADC) for Weight Scales.](https://github.com/bogde/HX711)
@@ -79,3 +83,51 @@ _Schema della macchina a stati finiti utilizzata per gestire le varie fasi di es
 ![Schema_bb.png](./images/Schema_bb.png)
 
 _Schema circuitale. Immagine creata con [Fritzing](https://fritzing.org/)_
+
+
+
+---
+
+### Foto e video
+
+Un video del Carrell-ino in funzione può essere trovato al seguente link: [Carrell-ino - YouTube](https://www.youtube.com/watch?v=kGcqHUkBG_E)
+
+
+
+![IMG_20220302_191221_1.jpg](./images/IMG_20220302_191221_1.jpg)
+
+_Struttura interna del Carrell-ino. Sono visibili la board Arduino Uno, il pacco batterie e il Motor Driver L298N._
+
+
+
+![IMG_20221110_135022.jpg](./images/IMG_20221110_135022.jpg)
+
+_Pannello superiore: sulla sinistra sono presenti il sensore a ultrasuoni e il pulsante per il cambio di stato, al centro si trova la cella di carico e il rispettivo moudlo ADC HX711, mentre a destra possiamo vedere il pulsante di accensione e il blocco di output._
+
+
+
+![IMG_20221110_135305.jpg](./images/IMG_20221110_135305.jpg)
+
+_Particolare del sensore a ultrasuoni e del pulsante di cambio stato._
+
+
+
+![IMG_20221110_135228_1.jpg](./images/IMG_20221110_135228_1.jpg)
+
+_Particolare del blocco di output: sono osservabili il diodo led con il suo resistore e il buzzer passivo._
+
+
+
+![IMG_20221110_135659_1.jpg](./images/IMG_20221110_135659_1.jpg)
+
+_Posizionamento dei moduli di rilevamento linea e dei due motori a corrente continua._
+
+
+
+![IMG_20221110_135043_1.jpg](./images/IMG_20221110_135043_1.jpg)
+
+
+
+![IMG_20221110_135100_1.jpg](./images/IMG_20221110_135100_1.jpg)
+
+_Viste laterale e anteriore del Carrell-ino._
