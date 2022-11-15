@@ -8,37 +8,35 @@ Filippo Maraffio
 
 ##### Descrizione
 
-Il progetto prevede la realizzazione di un carrello elettrico automatico, in grado di spostare piccoli oggetti lungo un percorso prefissato.
+Il progetto prevede la realizzazione di un carrello elettrico automatico, in grado di spostare piccoli oggetti, lungo un percorso prefissato.
 
-Il carrell-ino partirà automaticamente quando rileverà la presenza di un oggetto nel suo "cassone", e si muoverà seguendo una linea marcata precedentemente sul pavimento con del nastro isolante scuro.
+Il "Carrell-Ino" partirà automaticamente quando rileverà la presenza di un oggetto nel suo "cassone", e si muoverà seguendo una linea marcata precedentemente sul pavimento con del nastro isolante scuro.
 
-Raggiunta la sua destinazione, il carrell-ino si fermerà, in attesa di essere scaricato.
+Raggiunta la sua destinazione, il "Carrell-Ino" si fermerà, in attesa di essere scaricato.
 
-Una volta che il suo cassone sarà libero, il carrell-ino tornerà al punto di partenza, pronto per essere caricato nuovamente.
+Una volta che il suo cassone sarà libero, il "Carrell-Ino" tornerà al punto di partenza, pronto per essere caricato nuovamente.
 
-##### Istruzioni di utizzo
+##### Istruzioni di utilizzo
 
-1. Tracciare un percorso delineato da una linea scura su una superficie chiara (per esempio, utilizzare del nastro isolante nero su un pavimento di legno). Alle estremità del percoso posizionare delle sagome verticali (per esempio, delle scatole di cartone).
+1. Tracciare un percorso, delineato da una linea scura, su una superficie chiara (ad esempio, utilizzare del nastro isolante nero su un pavimento di legno). Alle estremità del percoso posizionare delle sagome verticali (ad esempio, delle scatole di cartone)  per delimitare inizio e fine tratto.  Posizionare il "Carrell-Ino" a cavallo della linea che traccia il tragitto, ed accenderlo.
 
-2. Posizionare il carrell-ino a cavallo della linea che delimita il percorso e accenderlo.
+2. Posizionare un peso di almeno 50g sulla bilancia presente sul pannello superiore del "Carrell-Ino" ed attendere. Dopo pochi istanti, il carrello emetterà un segnale acustico e luminoso ed inizierà a muoversi.
 
-3. Posizionare un peso di almeno 50g sulla bilancia del carrell-ino e attendere. Dopo pochi istanti, il carrello emetterà un segnale acustico e luminoso e inizierà a muoversi.
+3. Il "Carrell-Ino" si muoverà seguendo il percorso prefissato e si fermerà automaticamente una volta raggiunta la sua destinazione. Una luce rossa si accenderà per richiedere l'intervento dell'utente.
 
-4. Il carrell-ino si muoverà seguendo il percorso prefissato e si fermerà automaticamente una volta raggiunta la sua destinazione. Una luce rossa si accenderà per richiedere l'intervento dell'utente.
+4. Girare il "Carrell-Ino", in modo tale da orientarlo verso il punto di partenza e premere il pulsante di cambio stato, posizionato vicino al sensore ad ultrasuoni.
 
-5. Girare il carrell-ino, in modo che punti verso la partenza del percorso, e premere il pulsante posizionato vicino al sensore a ultrasuoni.
+5. Il "Carrell-Ino", dapprima resterà in attesa di essere scaricato; quando non rileverà più il peso sulla bilancia, ripartirà tornando al punto di inizio, dove si fermerà. 
 
-6. Il carrell-ino resterà quindi in attesa di essere scaricato; quando non rileverà più il peso sulla bilancia, ripartirà, in modo analogo a come fatto nella fase 3, verso il punto di partenza, dove si fermerà.
-
-7. Premendo il pulsante il carrell-ino tornerà al suo stato iniziale, e sarà possibile ripartire dal punto 2 per effettuare ulteriori viaggi.
+6. Premendo il pulsante il "Carrell-Ino" tornerà al suo stato iniziale, e, dopo averlo riposizionato, sarà possibile caricarlo e farlo ripartire per effettuare ulteriori viaggi.
 
 ##### Calibrazione bilancia
 
-Quando si installa una nuova cella di carico sul Carrell-ino, sarebbe opportuno effettuare una calibrazione della bilancia, così da evitare comportamenti indesiderati.
+Quando si installa una nuova cella di carico sul Carrell-Ino, è opportuno effettuare una calibrazione della bilancia, così da evitare comportamenti anomali.
 
-Per farla, procurarsi un oggetto dal peso noto, collegare il Carrell-ino a un PC dove è installato Arduino IDE, scommentare la costante `SCALE_CALIBRATION` e impostare `LOADCELL_DIVIDER` a `1`. Caricare quindi lo sketch modificato sulla board, aprire il serial monitor e seguire le istruzioni che compariranno a schermo.
+Per la calibrazione, procurarsi un oggetto dal peso noto, collegare il Carrell-Ino a un PC dove è installato Arduino IDE, scommentare la costante `SCALE_CALIBRATION` e impostare `LOADCELL_DIVIDER` a `1`. Caricare quindi lo sketch modificato sulla board, aprire il serial monitor e seguire le istruzioni che compariranno a schermo.
 
-Dopo aver effettuato tutti i passaggi, dividere il numero ottenuto per il peso dell'oggetto usato per la calibrazione e usarlo per impostare `LOADCELL_DIVIDER`. Ricommentare `SCALE_CALIBRATION`, e caricare nuovamente lo sketch sulla board. Il Carrell-ino è pronto a partire!
+Dopo aver effettuato tutti i passaggi, dividere il numero restituito dal serial monitor per il peso dell'oggetto usato per la calibrazione e usarlo come valore della costante `LOADCELL_DIVIDER`. Ricommentare `SCALE_CALIBRATION` e caricare nuovamente lo sketch sulla board. Il Carrell-Ino è pronto a partire!
 
 ##### Hardware utilizzato
 
@@ -72,13 +70,19 @@ Per la la realizzazione del telaio e del ruotino di coda sono state utilizzate u
 
 - [GitHub - bogde/HX711: An Arduino library to interface the Avia Semiconductor HX711 24-Bit Analog-to-Digital Converter (ADC) for Weight Scales.](https://github.com/bogde/HX711)
 
+
+
 ---
 
 ### Progettazione
 
+Il programma che controlla il Carrell-Ino può essere descritto, ad alto livello, tramite il seguente automa a stati finiti:
+
 ![Macchina a stati.png](./images/Macchina%20a%20stati.png)
 
 _Schema della macchina a stati finiti utilizzata per gestire le varie fasi di esecuzione._
+
+
 
 ![Schema_bb.png](./images/Schema_bb.png)
 
@@ -90,13 +94,11 @@ _Schema circuitale. Immagine creata con [Fritzing](https://fritzing.org/)_
 
 ### Foto e video
 
-Un video del Carrell-ino in funzione può essere trovato al seguente link: [Carrell-ino - YouTube](https://www.youtube.com/watch?v=kGcqHUkBG_E)
-
-
+Un video del Carrell-Ino in funzione può essere trovato al seguente link: [Carrell-Ino - YouTube](https://www.youtube.com/watch?v=kGcqHUkBG_E)
 
 ![IMG_20220302_191221_1.jpg](./images/IMG_20220302_191221_1.jpg)
 
-_Struttura interna del Carrell-ino. Sono visibili la board Arduino Uno, il pacco batterie e il Motor Driver L298N._
+_Struttura interna del Carrell-Ino. Sono visibili la board Arduino Uno, il pacco batterie e il Motor Driver L298N._
 
 
 
@@ -126,8 +128,6 @@ _Posizionamento dei moduli di rilevamento linea e dei due motori a corrente cont
 
 ![IMG_20221110_135043_1.jpg](./images/IMG_20221110_135043_1.jpg)
 
-
-
 ![IMG_20221110_135100_1.jpg](./images/IMG_20221110_135100_1.jpg)
 
-_Viste laterale e anteriore del Carrell-ino._
+_Viste laterale e anteriore del Carrell-Ino._
